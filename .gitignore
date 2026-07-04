@@ -216,3 +216,36 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Python
+*.pyc
+*.pyo
+*.pyd
+
+# Database
+*.db
+*.sqlite3
+
+
+# Virtual environment
+.venv/
+
+# Python
+pycache/
+*.py[cod]
+
+# Django
+db.sqlite3
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
