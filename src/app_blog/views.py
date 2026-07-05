@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import Comment, Post
 from .serializers import (
@@ -13,11 +14,13 @@ from .serializers import (
 
 
 class PostViewSet(viewsets.ModelViewSet):
+    filterset_fields = ["category", "author"]
     queryset = Post.objects.select_related(
         "author"
     ).prefetch_related(
         "comments__author"
     )
+    filter_backends = [DjangoFilterBackend,]
 
     def get_serializer_class(self):
         if self.action == "list":
