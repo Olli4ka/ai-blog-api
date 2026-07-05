@@ -2,6 +2,10 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import generics, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import (
+    SearchFilter,
+    OrderingFilter,
+)
 
 from .models import Comment, Post
 from .serializers import (
@@ -20,7 +24,13 @@ class PostViewSet(viewsets.ModelViewSet):
     ).prefetch_related(
         "comments__author"
     )
-    filter_backends = [DjangoFilterBackend,]
+    filter_backends = [
+        DjangoFilterBackend,
+        SearchFilter,
+        OrderingFilter,
+    ]
+    search_fields = ["title", "content"]
+    ordering_fields = ["created_at", "title"]
 
     def get_serializer_class(self):
         if self.action == "list":
