@@ -15,6 +15,11 @@ from .serializers import (
     PostListSerializer,
     PostWriteSerializer,
 )
+from .permissions import (
+    IsEditorOrAdmin,
+    IsOwnerOrAdmin,
+    IsViewerOrHigher,
+)
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -32,6 +37,18 @@ class PostViewSet(viewsets.ModelViewSet):
     search_fields = ["title", "content"]
     ordering_fields = ["created_at", "title"]
 
+    def get_permissions(self):
+        if self.action in ["list", "retrieve"]:
+            return [AllowAny()]
+
+        if self.action == "create":
+            return [IsEditorOrAdmin()]
+
+        return [
+            IsEditorOrAdmin(),
+            IsOwnerOrAdmin(),
+        ]
+
     def get_serializer_class(self):
         if self.action == "list":
             return PostListSerializer
@@ -46,6 +63,12 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
+        return [IsViewerOrHigher()]
 
     def get_queryset(self):
         return Comment.objects.filter(
@@ -70,9 +93,17 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
         )
 
 
-class CommentRetrieveUpdateDestroyAPIView(
-    generics.RetrieveUpdateDestroyAPIView
-):
+class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
+        return [
+            IsViewerOrHigher(),
+            IsOwnerOrAdmin(),
+        ]
+
     lookup_url_kwarg = "comment_id"
 
     def get_queryset(self):
