@@ -7,6 +7,7 @@ from rest_framework.filters import (
     OrderingFilter,
 )
 from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import extend_schema
 
 from .models import Comment, Post
 from .serializers import (
@@ -23,20 +24,17 @@ from .permissions import (
 )
 
 
+@extend_schema(tags=["Posts"])
 class PostViewSet(viewsets.ModelViewSet):
     filterset_fields = ["category", "author"]
-    queryset = Post.objects.select_related(
-        "author"
-    ).prefetch_related(
-        "comments__author"
-    )
-    filter_backends = [
-        DjangoFilterBackend,
-        SearchFilter,
-        OrderingFilter,
-    ]
     search_fields = ["title", "content"]
     ordering_fields = ["created_at", "title"]
+
+    queryset = Post.objects.select_related("author").prefetch_related(
+        "comments__author"
+    )
+
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
@@ -49,6 +47,48 @@ class PostViewSet(viewsets.ModelViewSet):
             IsEditorOrAdmin(),
             IsOwnerOrAdmin(),
         ]
+
+    @extend_schema(
+        summary="Retrieve all blog posts",
+        description="Returns a paginated list of AI blog posts.",
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Retrieve a blog post",
+        description="Returns detailed information about a single post, including comments.",
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create a new blog post",
+        description="Creates a new blog post. Authentication is required.",
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Replace a blog post",
+        description="Replaces an existing blog post. Authentication is required.",
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Partially update a blog post",
+        description="Updates part of an existing blog post. Authentication is required.",
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete a blog post",
+        description="Deletes an existing blog post. Authentication is required.",
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == "list":
