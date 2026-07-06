@@ -1,9 +1,7 @@
 import pytest
-
 from rest_framework import status
 
 from app_blog.models import Comment
-
 
 # ===== READ =====
 

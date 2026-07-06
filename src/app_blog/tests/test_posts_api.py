@@ -3,7 +3,6 @@ from rest_framework import status
 
 from app_blog.models import Post
 
-
 # ===== READ =====
 
 

@@ -2,7 +2,6 @@ import pytest
 
 from app_blog.models import Comment, Post
 
-
 # ===== Post model =====
 
 

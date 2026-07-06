@@ -1,9 +1,12 @@
 import pytest
 
-from app_blog.serializers import (CommentSerializer, CommentWriteSerializer,
-                                  PostDetailSerializer, PostListSerializer,
-                                  PostWriteSerializer)
-
+from app_blog.serializers import (
+    CommentSerializer,
+    CommentWriteSerializer,
+    PostDetailSerializer,
+    PostListSerializer,
+    PostWriteSerializer,
+)
 
 # ===== Post serializers =====
 

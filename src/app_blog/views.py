@@ -1,26 +1,25 @@
 from django.shortcuts import get_object_or_404
-
-from rest_framework import generics, viewsets
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
+from rest_framework import generics, viewsets
 from rest_framework.filters import (
-    SearchFilter,
     OrderingFilter,
+    SearchFilter,
 )
 from rest_framework.permissions import AllowAny
-from drf_spectacular.utils import extend_schema
 
 from .models import Comment, Post
+from .permissions import (
+    IsEditorOrAdmin,
+    IsOwnerOrAdmin,
+    IsViewerOrHigher,
+)
 from .serializers import (
     CommentSerializer,
     CommentWriteSerializer,
     PostDetailSerializer,
     PostListSerializer,
     PostWriteSerializer,
-)
-from .permissions import (
-    IsEditorOrAdmin,
-    IsOwnerOrAdmin,
-    IsViewerOrHigher,
 )
 
 
@@ -101,6 +100,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
 
 @extend_schema(tags=["Comments"])
 class CommentListCreateAPIView(generics.ListCreateAPIView):
