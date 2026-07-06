@@ -102,7 +102,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
+@extend_schema(tags=["Comments"])
 class CommentListCreateAPIView(generics.ListCreateAPIView):
 
     def get_permissions(self):
@@ -111,29 +111,37 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
 
         return [IsViewerOrHigher()]
 
+    @extend_schema(
+        summary="Retrieve comments for a blog post",
+        description="Returns all comments for the specified blog post.",
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create a comment",
+        description="Creates a new comment for the specified blog post. Viewer, Editor or Admin role is required.",
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
     def get_queryset(self):
-        return Comment.objects.filter(
-            post_id=self.kwargs["post_id"]
-        ).select_related("author")
+        return Comment.objects.filter(post_id=self.kwargs["post_id"]).select_related(
+            "author"
+        )
 
     def get_serializer_class(self):
         if self.request.method == "GET":
             return CommentSerializer
-
         return CommentWriteSerializer
 
     def perform_create(self, serializer):
-        post = get_object_or_404(
-            Post,
-            pk=self.kwargs["post_id"],
-        )
+        post = get_object_or_404(Post, pk=self.kwargs["post_id"])
 
-        serializer.save(
-            post=post,
-            author=self.request.user,
-        )
+        serializer.save(post=post, author=self.request.user)
 
 
+@extend_schema(tags=["Comments"])
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
@@ -147,13 +155,37 @@ class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
     lookup_url_kwarg = "comment_id"
 
+    @extend_schema(
+        summary="Retrieve a comment", description="Returns a single comment."
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Replace a comment",
+        description="Replaces an existing comment. Authentication is required.",
+    )
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Partially update a comment",
+        description="Updates part of an existing comment. Authentication is required.",
+    )
+    def patch(self, request, *args, **kwargs):
+        return super().patch(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Delete a comment",
+        description="Deletes an existing comment. Authentication is required.",
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
     def get_queryset(self):
-        return Comment.objects.filter(
-            post_id=self.kwargs["post_id"]
-        )
+        return Comment.objects.filter(post_id=self.kwargs["post_id"])
 
     def get_serializer_class(self):
         if self.request.method == "GET":
             return CommentSerializer
-
         return CommentWriteSerializer
